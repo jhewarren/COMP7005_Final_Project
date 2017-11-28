@@ -19,5 +19,5 @@ class client:
 
 config_data = json.load(open("../config.json"))
 print(config_data)
-c = client(remote=(config_data["master_ip"], config_data["master_port"]))
+c = client(remote=(config_data["emulator_ip"], config_data["emulator_port"]))
 del c

@@ -16,6 +16,7 @@ class server:
         self.socket.connect(self.remote)
 
 
+config_data = json.load(open("../config.json"))
+print(config_data)
 c = server()
-c.connect_to_emulator()
 del c
