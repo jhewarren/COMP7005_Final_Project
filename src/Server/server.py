@@ -1,12 +1,14 @@
 import socket as sock_module
-import json
+import sys
 
 
 class server:
-    def __init__(self, emulator=("192.168.0.14", 7005)):
+    def __init__(self, config={}):
+        if bool(config) == False:
+            sys.exit()
         self.socket = sock_module.socket(
             sock_module.AF_INET, sock_module.SOCK_DGRAM)
-        self.socket.bind(("localhost", 7005))
+        self.socket.bind((config["localhost", config["server_port"]]))
 
     def __del__(self):
         self.socket.close()
@@ -16,7 +18,11 @@ class server:
         self.socket.connect(self.remote)
 
 
-config_data = json.load(open("../config.json"))
-print(config_data)
-c = server()
-del c
+def run(config):
+    print(config)
+    s = server(config)
+    del s
+
+
+if __name__ == "__main__":
+    run()

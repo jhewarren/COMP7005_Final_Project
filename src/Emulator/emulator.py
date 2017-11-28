@@ -1,24 +1,36 @@
 import socket as sock_module
-import json
+import sys
 
 
 class emulator:
     def __init__(self, config={}):
         self.socket = sock_module.socket(
             sock_module.AF_INET, sock_module.SOCK_DGRAM)
-        self.socket.bind(("localhost", 7005))
         self.ip = sock_module.gethostbyname(sock_module.gethostname())
-        print(self.ip)
         if config["emulator_ip"] == self.ip:
             print("same ip", self.ip)
+            self.socket.bind((config["emulator_ip"], config["emulator_port"]))
+        else:
+            sys.exit()
 
     def __del__(self):
         self.socket.close()
         del self.socket
 
+    def accept_connections(self):
+        while(1):
+            buffer = self.socket.recv(1024)
+            print(buffer)
+            if buffer == "":
+                break
 
-config = json.load(open("../config.json"))
-print(config)
-print(config["emulator_port"])
-c = emulator(config)
-del c
+
+def run(config):
+    print(config)
+    e = emulator(config)
+    e.accept_connections()
+    del e
+
+
+if __name__ == "__main__":
+    run()

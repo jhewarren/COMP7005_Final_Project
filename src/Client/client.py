@@ -1,10 +1,9 @@
 import socket as sock_module
-import json
 
 
 class client:
-    def __init__(self, remote=("localhost", 7005)):
-        self.remote = remote
+    def __init__(self, config={}):
+        self.remote = (config["emulator_ip"], config["emulator_port"])
         self.socket = sock_module.socket(
             sock_module.AF_INET, sock_module.SOCK_DGRAM)
         self.socket.bind(("localhost", 7005))
@@ -17,7 +16,11 @@ class client:
         self.socket.connect(self.remote)
 
 
-config_data = json.load(open("../config.json"))
-print(config_data)
-c = client(remote=(config_data["emulator_ip"], config_data["emulator_port"]))
-del c
+def run(config):
+    print(config)
+    c = client(config)
+    del c
+
+
+if __name__ == "__main__":
+    run()
