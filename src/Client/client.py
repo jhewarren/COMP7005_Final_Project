@@ -2,10 +2,11 @@ import socket as sock_module
 
 
 class client:
-    def __init__(self, remote, ):
+    def __init__(self, remote=("localhost", 7005)):
+        self.remote = remote
         self.socket = sock_module.socket(
             sock_module.AF_INET, sock_module.SOCK_DGRAM)
-        self.socket.bind(["localhost", 7005])
+        self.socket.bind(remote)
 
     def __del__(self):
         self.socket.close()
