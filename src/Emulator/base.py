@@ -1,14 +1,12 @@
 import socket as sock_module
-import sys
 
 
-class server:
+class base(object):
     def __init__(self, config={}):
-        if bool(config) == False:
-            sys.exit()
+        self.remote = (config["emulator_ip"], config["emulator_port"])
         self.socket = sock_module.socket(
             sock_module.AF_INET, sock_module.SOCK_DGRAM)
-        self.socket.bind((config["localhost", config["server_port"]]))
+        self.socket.bind(("localhost", 7005))
 
     def __del__(self):
         self.socket.close()
@@ -20,9 +18,16 @@ class server:
 
 def run(config):
     print(config)
-    s = server(config)
-    del s
+    c = base(config)
+    del c
 
+
+test_config = {
+    "emulator_ip": "192.168.0.1",
+    "emulator_port": 7005,
+    "server_ip": "192.168.0.2",
+    "server_port": 7005
+}
 
 if __name__ == "__main__":
-    run()
+    run(test_config)

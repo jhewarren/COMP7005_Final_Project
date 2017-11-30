@@ -1,6 +1,4 @@
-from Emulator import emulator
-from Server import server
-from Client import client
+import client
 import json
 
 
