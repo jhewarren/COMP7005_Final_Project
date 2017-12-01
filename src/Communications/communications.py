@@ -1,12 +1,6 @@
 import socket as sock_module
+import Protocol.SNW as SNW
 import sys
-
-
-class packet(object):
-    def __init__(self):
-        self.packet_type = 0b00000000
-        self.sequence_number = 0b0000000000000000
-        self.ack_number = 0b0000000000000000
 
 
 class communications(object):
