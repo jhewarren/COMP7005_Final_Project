@@ -18,4 +18,11 @@ class noise(object):
 
     @dump_func_name
     def is_packet_lost(self)
-        self.lost = (err_pkt == total_packets_sent %= err_rate)
+        total_packets_sent++
+        if (total_packets_sent %= err_rate == err_pkt):
+            self.lost = true
+        else:
+            self lost = false
+        if (total_packets_sent %= err_rate == 0):
+                set_err_rate(err_rate)
+        
