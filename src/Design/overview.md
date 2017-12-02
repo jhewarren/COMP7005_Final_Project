@@ -65,6 +65,26 @@ if first packet then save socket info
 log pktinfo to log file
 
 # send
+open file to send
+while !EOF
+    packetize data
+    while next slot is open
+        add packet to slot
+    for i=1 to window_size
+        send packet
+        set timeout = now+delay
+        intransit++ / sent ++
+    if ack received
+        for (oldest packet) to (ack received)
+            mark packet ackd
+            intransit -- / tail++
+    if oldest_packet timeout
+        resend packet
+        reset timeout
+    if slot >= window_size
+        slot=0
+close file
+
 
 # receive
 
