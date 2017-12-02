@@ -20,7 +20,8 @@ class noise(object):
 
     #@dump_func_name
     def is_packet_lost(self):
-        is_lost = True if self.err_pkt == (self.total_packets_sent % self.err_rate) else False
+        self.total_packets_sent %= self.err_rate
+        is_lost = True if self.err_pkt == (self.total_packets_sent) else False
         if is_lost is True:
             return True
         else:
@@ -34,4 +35,4 @@ if __name__ == "__main__":
     for i in range(10):
         f = n.is_packet_lost()
         if f is True:
-            print(f, i, "packet lost")
+            print(f, "packet", i, "is lost")
