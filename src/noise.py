@@ -9,12 +9,12 @@ class noise(object):
     def set_err_rate(self, error_rate)
 
         global err_pkt
-        global err_rate
+        global err_rate = error_rate
 
         // assume that rate < 1/maxint is negligible
         if error_rate > sys.maxint:
             error_rate = sys.maxint
-        err_pkt = random.randint(1,error_rate)
+        err_pkt = random.randint(1,err_rate)
 
     @dump_func_name
     def is_packet_lost(self)
