@@ -58,12 +58,30 @@ end demo/auto mode]
 # emulator
 open socket to server
 open socket to client
+[
+    open reverse socket to server on client
+    open reverse socket to client on server
+]
 
-listen on server socket
+listen on server socket, 
+listen on return socket from client
+[
+    listen on reverse server socket from client, 
+    listen on reverse return socket from server
+]
+
 for each packet received
-if first packet then save socket info
-log pktinfo to log file
+    if first packet 
+        save socket info
+        include 'corrected' destination for messages 
+        based on socket and source IP
 
+    if was-packet-lost()
+        add drop packet flag to message
+    else
+        send packet on to destination
+    save pktinfo to log file
+    
 # send
 open file to send
 while !EOF
@@ -85,8 +103,18 @@ while !EOF
         slot=0
 close file
 
-
 # receive
+open file to receive
+while !EOF
+    listen on socket
+    put message into queue
+    if next in sequence
+        send ack
+        seq++
+    if next packet is in queue
+        depacketize to file
+        clear from queue
+close file
 
 # catalogue (file structure handle, socket handle)
 packetize and send files listing
