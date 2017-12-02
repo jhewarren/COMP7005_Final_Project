@@ -1,6 +1,6 @@
 import socket as sock_module
-from packet import packet
-from packet import packet_parser
+import packet
+from chunker import read_in_chunks
 import communications
 import asyncio
 import sys
@@ -34,10 +34,15 @@ with open("config.json") as file:
     config_data = file.read()
 
 s = SNW(config_data)
+pparser = packet.packet_parser()
+packets = []
+count = 10
 
+for chunk in read_in_chunks("./testfiles/32b.dat", 8):
+    count += 1
+    packets.append(packet.packetize(packet.packet_types["RSD"], 16, count, 5, 0, len(chunk), chunk))
 
-pkt = packet(packet_type=0b00000011, data="hello world this is a message".encode("utf-8"))
-print(pkt.data)
-print(pkt.packetize())
-pkts = [pkt]
-s.send_packets(pkts)
+for pkt in packets:
+    print(pparser.parse_packet_string(pkt))
+
+print(packets)
