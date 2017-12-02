@@ -56,6 +56,11 @@ for each file
 end demo/auto mode]
 
 # emulator
+If error rate not on command line
+    if error rate not in config file
+		ask client for error rate
+Set lost packet sequence number (function)
+
 open socket to server
 open socket to client
 [
@@ -119,4 +124,16 @@ close file
 # catalogue (file structure handle, socket handle)
 packetize and send files listing
 
+# set lost packet sequence number
+Lost packet is random*err-rate
+(where 1 in x is the error rate, x = err-rate)
+
 # was-pkt-lost
+If sequence == lost-packet
+	Lost = true
+Else 
+	lost=false
+
+If sequence++ == err-rate
+	sequence=0
+	Update lost packet sequence number
