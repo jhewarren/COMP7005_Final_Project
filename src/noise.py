@@ -18,10 +18,10 @@ class noise(object):
             self.err_rate = sys.maxsize
         self.err_pkt = random.randint(1, self.err_rate)
 
-    #@dump_func_name
+    #  dump_func_name
     def is_packet_lost(self):
-        self.total_packets_sent %= self.err_rate
-        is_lost = True if self.err_pkt == (self.total_packets_sent) else False
+        mod = self.total_packets_sent % self.err_rate
+        is_lost = True if self.err_pkt == (mod) else False
         if is_lost is True:
             return True
         else:
