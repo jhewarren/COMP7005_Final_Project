@@ -16,17 +16,24 @@ class noise(object):
         # assume that rate < 1 / maxint is negligible
         if self.err_rate > sys.maxsize:
             self.err_rate = sys.maxsize
+
+        # set error packet as random packet between 1 & error_rate
         self.err_pkt = random.randint(1, self.err_rate)
 
-    #  dump_func_name
-    def is_packet_lost(self):
-        mod = self.total_packets_sent % self.err_rate
-        is_lost = True if self.err_pkt == (mod) else False
-        if is_lost is True:
-            return True
+    #@dump_func_name
+    def is_packet_lost(self)
+    # Is_error if total_packets mod error_rate = error_packet
+        if (self.total_packets_sent % self.err_rate == self.err_pkt):
+            is_lost = True
+            # if self.err_pkt == (self.total_packets_sent)
         else:
-            self.total_packets_sent += 1
-            return False
+            is_lost = False
+
+        self.total_packets_sent += 1
+        # change error packet sequence number on every error_rate packets
+        if (total_packets_sent == error_rate):
+            self.set_err_rate(error_rate)
+        return is_lost
 
 
 if __name__ == "__main__":
