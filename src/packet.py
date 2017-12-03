@@ -9,13 +9,14 @@ packet_types = bidict(
 
     PSH=0x10,
     RSD=0x20,
-    EM3=0x40,
+    TMT=0x40,
     DRP=0x80,
 )
 
 allowed_multi_types = bidict(
     SYN_ACK=(packet_types["ACK"] ^ packet_types["SYN"]),
     ACK_PSH=(packet_types["ACK"] ^ packet_types["PSH"]),
+    PUT_PSH=(packet_types["PUT"] ^ packet_types["PSH"]),
 )
 
 
@@ -33,7 +34,7 @@ class packet_parser(object):
 
     def parse_packet_string(self, pkt_string):
         split = pkt_string.split(":")
-        datasize = int(split[5], 10)
+        datasize = int(split[5], 16)
         return packet(packet_type=hex(int(split[0], 16)),
                       sequence_number=hex(int(split[1], 16)),
                       ack_number=hex(int(split[2], 16)),
@@ -52,7 +53,7 @@ class packet(object):
         self.data = data
 
     def __str__(self):
-        datasize = len(self.data)
+        datasize = hex(len(self.data))
         return "{0}:{1}:{2}:{3}:{4}:{5}:{6}".format(self.packet_type,
                                                     self.sequence_number,
                                                     self.ack_number,
@@ -63,7 +64,7 @@ class packet(object):
 
 
 # quick packetize so that no object has to be made
-def packetize(packet_type, sequence_number, ack_number, window_size, rport, datasize, data):
+def packetize(packet_type, sequence_number, ack_number, window_size, rport, data):
     if data is not None:
         datasize = len(data)
     else:
