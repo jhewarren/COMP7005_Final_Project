@@ -32,8 +32,7 @@ class noise(object):
         if (self.total_packets_sent % self.err_rate == self.err_rate - 1):
             self.set_err_rate(self.err_rate)
 
-        self.total_packets_sent+=1
-
+        self.total_packets_sent += 1
         return self.lost
     
 if __name__ == "__main__":
@@ -42,6 +41,6 @@ if __name__ == "__main__":
     for i in range(30):
         f = n.is_packet_lost()
         if f is True:
-            print(f, "packet", i, "is lost")
+            print(i, " is lost - ",f)
         else:
             print(i, " is a-okay")
