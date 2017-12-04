@@ -4,7 +4,7 @@ from socket import *
 from chunker import *
 import traceback
 from random import randint
-
+import sys
 
 STATES = bidict(
     closed=1,
@@ -18,6 +18,8 @@ STATES = bidict(
 Make sure you check for retransmit requests
 '''
 
+MAX_VALUE_0xFFFF = 65535
+
 
 class connection(object):
     def __init__(self, socket, remote=None):
@@ -25,7 +27,7 @@ class connection(object):
         self.remote = remote
         self.parser = packet_parser()
         self.is_listener = False
-        self.sequence_number = randint(1, 65000)
+        self.sequence_number = MAX_VALUE_0xFFFF - 100  # randint(1, 65000)
         self.ack_number = 0
         if self.remote is None:
             self.is_listener = True
@@ -102,11 +104,14 @@ class connection(object):
 
     def send_file(self, filename, chunksize):
         for file_chunk in read_in_chunks(filename, chunksize):
-            self.sequence_number += 1
             count = self.send_packet(packet_type=ALLOWED_MULTI_TYPES["ACK_PSH"], data=file_chunk)
             (pkt, address) = self.read_packet()
             if pkt.check_packet(packet_type=PACKET_TYPES["ACK"], ack_number=self.sequence_number):
                 print("sent", "SN", self.sequence_number, "BYTES:", count)
+            elif pkt.check_packet(packet_type=PACKET_TYPES["RSD"]):
+                print("requested RESEND\n\n\n")
+                self.sequence_number -= 1
+                count = self.send_packet(packet_type=ALLOWED_MULTI_TYPES["ACK_PSH"], data=file_chunk)
 
         self.send_packet(packet_type=ALLOWED_MULTI_TYPES["ACK_PSH"], data=None)
 
@@ -114,7 +119,8 @@ class connection(object):
         r = reassembler(file_name)
         while True:
             (pkt, address) = self.read_packet()
-            if not pkt.check_packet(packet_type=ALLOWED_MULTI_TYPES["ACK_PSH"], ack_number=self.sequence_number):
+            if not pkt.check_packet(packet_type=ALLOWED_MULTI_TYPES["ACK_PSH"]):
+                print("Got:", pkt.ack_number, "Wanted:", self.sequence_number)
                 self.send_packet(packet_type=PACKET_TYPES["RSD"])
             elif pkt.check_packet(packet_type=ALLOWED_MULTI_TYPES["ACK_PSH"]) and pkt.datasize == 0:
                 print("transfer done")
@@ -133,9 +139,10 @@ class connection(object):
                         window_size=1,
                         rport=rport,
                         data=data)
-        if self.sequence_number + 1 is 65534:
-            self.sequence_number == 0
-        self.sequence_number += 1
+        if data is not None:
+            if self.sequence_number == MAX_VALUE_0xFFFF - 1:
+                self.sequence_number = 0
+            self.sequence_number += 1
         return self.socket.sendto(pkt, address)
 
     def read_packet(self):
@@ -143,9 +150,9 @@ class connection(object):
         pkt = self.parser.parse_packet_string(data)
         print("Server" if self.is_listener is True else "Client",
               "got", self.parser.get_packet_type(pkt.packet_type), "SN", pkt.sequence_number, "AN", pkt.ack_number)
-        if self.ack_number + 1 is 65534:
-            self.ack_number == 0
-        self.ack_number = pkt.sequence_number + 1
+
+        if pkt.datasize is not 0:
+            self.ack_number = pkt.sequence_number + 1
         return (pkt, address)
 
     def set_state(self, state):
