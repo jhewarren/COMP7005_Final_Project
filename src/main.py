@@ -67,6 +67,7 @@ def run_server():
         print("failed data connection")
         return None
 
+    print("Server data_connection state:", data_connection.get_state())
     server_socket.close()
 
 
