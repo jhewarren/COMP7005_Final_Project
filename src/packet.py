@@ -1,5 +1,6 @@
 from bidict import bidict
-
+from debug import dump_func_name
+from binascii import unhexlify
 
 packet_types = bidict(
     ACK=0x1,
@@ -33,34 +34,33 @@ class packet_parser(object):
             return t
 
     def parse_packet_string(self, pkt_string):
-        split = pkt_string.split(":")
-        datasize = int(split[5], 16)
-        return packet(packet_type=hex(int(split[0], 16)),
-                      sequence_number=hex(int(split[1], 16)),
-                      ack_number=hex(int(split[2], 16)),
-                      window_size=hex(int(split[3], 16)),
-                      rport=hex(int(split[4], 16)),
-                      data=["".join(split[6:])[i] for i in range(datasize)])
+        return packet(packet_type=int(pkt_string[0:2], 16),
+                      sequence_number=int(pkt_string[2:6], 16),
+                      ack_number=int(pkt_string[6:10], 16),
+                      rport=int(pkt_string[10:14], 16),
+                      window_size=int(pkt_string[14:16], 16),
+                      datasize=int(pkt_string[16:24], 16),
+                      data=(pkt_string[24:]))
 
 
 class packet(object):
-    def __init__(self, packet_type=0x1, sequence_number=0x1, ack_number=0x0, window_size=5, rport=0x0, data=None):
+    def __init__(self, packet_type=0x1, sequence_number=0x1, ack_number=0x0, window_size=5, rport=0x0, datasize=0, data=None):
         self.packet_type = packet_type
         self.sequence_number = sequence_number
         self.ack_number = ack_number
         self.rport = rport
         self.window_size = window_size
+        self.datasize = datasize
         self.data = data
 
     def __str__(self):
-        datasize = hex(len(self.data))
-        return "{0}:{1}:{2}:{3}:{4}:{5}:{6}".format(self.packet_type,
-                                                    self.sequence_number,
-                                                    self.ack_number,
-                                                    self.rport,
-                                                    self.window_size,
-                                                    datasize,
-                                                    self.data)
+        return b"%2X%4X%4X%4X%2X%8X%b" % (self.packet_type,
+                                          self.sequence_number,
+                                          self.ack_number,
+                                          self.rport,
+                                          self.window_size,
+                                          self.datasize,
+                                          self.data)
 
 
 # quick packetize so that no object has to be made
@@ -70,10 +70,26 @@ def packetize(packet_type, sequence_number, ack_number, window_size, rport, data
     else:
         datasize = 0
 
-    return "{0:2X}:{1:4X}:{2:4X}:{3:4X}:{4:2X}:{5:8X}:{6}".format(packet_type,
-                                                                  sequence_number,
-                                                                  ack_number,
-                                                                  rport,
-                                                                  window_size,
-                                                                  datasize,
-                                                                  data)
+    return b"%2X%4X%4X%4X%2X%8X%b" % (packet_type,
+                                      sequence_number,
+                                      ack_number,
+                                      rport,
+                                      window_size,
+                                      datasize,
+                                      data)
+
+
+class reassembler(object):
+    def __init__(self, file_name):
+        self.filename = file_name
+        self.file = open(file_name, "wb")
+
+    def __del__(self):
+        if self.file is not None:
+            self.file.close()
+
+    @dump_func_name
+    def put_chunk(self, pkt):
+        print(pkt.data)
+        self.file.write(pkt.data)
+        self.file.flush()
