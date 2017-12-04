@@ -1,8 +1,6 @@
 from bidict import bidict
-from debug import dump_func_name
-from binascii import unhexlify
 
-packet_types = bidict(
+PACKET_TYPES = bidict(
     ACK=0x1,
     SYN=0x2,
     PUT=0x4,
@@ -14,24 +12,33 @@ packet_types = bidict(
     DRP=0x80,
 )
 
-allowed_multi_types = bidict(
-    SYN_ACK=(packet_types["ACK"] ^ packet_types["SYN"]),
-    ACK_PSH=(packet_types["ACK"] ^ packet_types["PSH"]),
-    PUT_PSH=(packet_types["PUT"] ^ packet_types["PSH"]),
+ALLOWED_MULTI_TYPES = bidict(
+    SYN_ACK=(PACKET_TYPES["ACK"] ^ PACKET_TYPES["SYN"]),
+    ACK_PSH=(PACKET_TYPES["ACK"] ^ PACKET_TYPES["PSH"]),
+    PUT_PSH=(PACKET_TYPES["PUT"] ^ PACKET_TYPES["PSH"]),
 )
 
 
 class packet_parser(object):
 
     def get_packet_type(self, binary):
-        t = packet_types.get(binary)
-        print("{0:b}".format(binary))
+        t = PACKET_TYPES.get(binary)
         if t is not None:
             return t
-        else:
-            print("Multi-type packet found".find)
-            t = allowed_multi_types.inv.get(binary)
+
+        t = PACKET_TYPES.inv.get(binary)
+        if t is not None:
             return t
+
+        t = ALLOWED_MULTI_TYPES.get(binary)
+        if t is not None:
+            return t
+
+        t = ALLOWED_MULTI_TYPES.inv.get(binary)
+        if t is not None:
+            return t
+
+        return None
 
     def parse_packet_string(self, pkt_string):
         return packet(packet_type=int(pkt_string[0:2], 16),
@@ -44,7 +51,7 @@ class packet_parser(object):
 
 
 class packet(object):
-    def __init__(self, packet_type=0x1, sequence_number=0x1, ack_number=0x0, window_size=5, rport=0x0, datasize=0, data=None):
+    def __init__(self, packet_type=0x1, sequence_number=0x0, ack_number=0x0, window_size=5, rport=0x0, datasize=0, data=None):
         self.packet_type = packet_type
         self.sequence_number = sequence_number
         self.ack_number = ack_number
@@ -53,14 +60,26 @@ class packet(object):
         self.datasize = datasize
         self.data = data
 
-    def __str__(self):
-        return b"%2X%4X%4X%4X%2X%8X%b" % (self.packet_type,
-                                          self.sequence_number,
-                                          self.ack_number,
-                                          self.rport,
-                                          self.window_size,
-                                          self.datasize,
-                                          self.data)
+    def check_packet(self, packet_type=None, sequence_number=None, ack_number=None):
+        pt_true = True
+        sn_true = True
+        an_true = True
+        if packet_type is not None:
+            pt_true = self.packet_type == packet_type
+        if sequence_number is not None:
+            sn_true = self.sequence_number == sequence_number
+        if ack_number is not None:
+            an_true = self.ack_number == ack_number
+
+        return pt_true & sn_true & an_true
+
+    def packetize(self):
+        return packetize(packet_type=self.packet_type,
+                         sequence_number=self.sequence_number,
+                         ack_number=self.ack_number,
+                         window_size=self.window_size,
+                         rport=self.rport,
+                         data=self.data)
 
 
 # quick packetize so that no object has to be made
@@ -69,6 +88,7 @@ def packetize(packet_type, sequence_number, ack_number, window_size, rport, data
         datasize = len(data)
     else:
         datasize = 0
+        data = b''
 
     return b"%2X%4X%4X%4X%2X%8X%b" % (packet_type,
                                       sequence_number,
@@ -88,8 +108,6 @@ class reassembler(object):
         if self.file is not None:
             self.file.close()
 
-    @dump_func_name
     def put_chunk(self, pkt):
-        print(pkt.data)
         self.file.write(pkt.data)
         self.file.flush()
