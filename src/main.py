@@ -5,7 +5,6 @@ from connection import *
 from packet import PACKET_TYPES
 from packet import ALLOWED_MULTI_TYPES
 
-
 client_port = 7005
 server_port = 7006
 
@@ -22,7 +21,7 @@ def run_client():
     if not main_connection.connect_to_remote():
         print("failed main connection in client")
         return None
-    print(main_connection.get_state())
+    print("Machine 1 state:", main_connection.get_state())
 
     # allocate data transfer network resources
     data_socket = socket(AF_INET, SOCK_DGRAM)
@@ -30,15 +29,22 @@ def run_client():
     data_connection = connection(socket=data_socket)
 
     # tell remote to connect to data_connection
-    main_connection.send_command("GET", data_connection.local_port)
+    if not main_connection.send_command("GET", data_connection.local_port):
+        print("Client main_connection Failed to send command")
 
     # await connection
     if not data_connection.accept_connection():
         print("failed data connection in client")
         return None
-    print(data_connection.get_state())
+    print("Machine 1 data_connection state:", data_connection.get_state())
 
+    data_connection.recv_file(file_name="./recv/file.dat")
+
+    # clear resources
+    data_socket.close()
     client_socket.close()
+    del data_connection
+    del main_connection
 
 
 def run_server():
@@ -51,11 +57,15 @@ def run_server():
     if not main_connection.accept_connection():
         print("failed main connection in server")
         return None
-    print(main_connection.get_state())
+    print("Machine 2 state:", main_connection.get_state())
 
     # read command packet
     (command, rport) = main_connection.get_command()
     print("Server prased command:", command, "on port", rport)
+    if command == "GET":
+        main_connection.send_ack()
+    elif command == "PUT":
+        main_connection.send_ack()
 
     # allocate data transfer network resources
     data_socket = socket(AF_INET, SOCK_DGRAM)
@@ -66,9 +76,15 @@ def run_server():
     if not data_connection.connect_to_remote():
         print("failed data connection")
         return None
+    print("Machine 2 data_connection state:", data_connection.get_state())
 
-    print("Server data_connection state:", data_connection.get_state())
+    data_connection.send_file(filename="./testfiles/512kb.dat", chunksize=40)
+
+    # close socket
     server_socket.close()
+    data_socket.close()
+    del main_connection
+    del data_connection
 
 
 if __name__ == "__main__":

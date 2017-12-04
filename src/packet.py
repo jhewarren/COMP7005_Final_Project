@@ -108,6 +108,6 @@ class reassembler(object):
         if self.file is not None:
             self.file.close()
 
-    def put_chunk(self, pkt):
-        self.file.write(pkt.data)
+    def put_chunk(self, chunk):
+        self.file.write(chunk)
         self.file.flush()
