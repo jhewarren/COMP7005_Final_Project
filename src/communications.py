@@ -35,10 +35,6 @@ class communications(object):
             print("One of the objects did not exist on destructor call.")
 
     @dump_func_name
-    def establish_connection(self):
-        pass
-
-    @dump_func_name
     def configure(self):
         if self.is_emulator:
             self.configure_emulator()
