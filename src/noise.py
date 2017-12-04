@@ -2,6 +2,7 @@ import random
 from debug import dump_func_name
 import sys
 import logging
+import time
 
 class noise(object):
 
@@ -32,7 +33,7 @@ class noise(object):
 #    @dump_func_name
     def get_delay(self):
         self.delay=random.randint(0,2*self.ave_delay)
-        logger.info('%sms delay',self.delay)
+#        logger.info('%sms delay',self.delay)
         return self.delay
 
 #    @dump_func_name
@@ -63,17 +64,24 @@ class noise(object):
         if (self.total_packets_sent % self.err_rate == self.err_rate - 1):
             self.set_err_rate(self.err_rate)
 
-        str = "# %s err: %s BER:1/%s >%s %s"%(self.total_packets_sent,self.total_errors,self.err_rate,self.err_pkt,self.lost)
+        self.get_delay()
+        
+        str = "# %s err: %s BER:1/%s >%s %s - delay %sms"%(self.total_packets_sent,self.total_errors,self.err_rate,self.err_pkt,self.lost,self.delay)
         logger.info(str)
+        time.sleep(self.delay/1000)
 
         return self.lost
+
+    @dump_func_name
+    def apply_emu(self):
+        self.get_delay()
+        self.is_packet_lost()
     
 if __name__ == "__main__":
     # lose 1 in 500
-    n = noise(12,13)
-    for i in range(256):
+    n = noise(18,100)
+    for i in range(50):
         f = n.is_packet_lost()
-        g = n.get_delay()
         if f is True:
             print(i, " is lost - ",f)
 #        else:
