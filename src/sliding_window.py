@@ -38,7 +38,7 @@ def run_client():
     # data_connection.recv_file(file_name="./recv/file.dat")
 
     # clear resources
-    data_socket.close()
+    #data_socket.close()
     client_socket.close()
     # del data_connection
     del command_connection
@@ -79,7 +79,7 @@ def run_server():
 
     # close socket
     server_socket.close()
-    data_socket.close()
+    #data_socket.close()
     del command_connection
     #del data_connection
 
