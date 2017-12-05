@@ -1,4 +1,3 @@
-
 def read_in_chunks(filename, chunk_size):
     with open(filename, 'rb') as file:
         while True:
