@@ -17,7 +17,7 @@ class SNW(communications.communications):
         self.last_ack_received = None
         self.LFS = None
         self.SWS = SWS
-        self.parser = packet_parser()
+        self.establish_connections()
 
     def __del__(self):
         pass
