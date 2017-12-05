@@ -30,7 +30,7 @@ class SNW(communications.communications):
             cc = connection(self.out_socket, (self.server_ip, self.server_port))
             sc = connection(self.in_socket, (self.client_ip, self.client_port))
             self.init_handshake(cc)  # to server
-            self.await_handshake(dc)  # from client
+            self.await_handshake(sc)  # from client
         elif self.is_server:
             sc = connection(self.in_socket, (self.client_ip, self.client_port))
             self.await_handshake(sc)  # from emulator
@@ -40,7 +40,7 @@ class SNW(communications.communications):
             print("succeeded connection")
 
     def await_handshake(self, conn):
-        conn.await_handshake()
+        conn.accept_connection()
 
     def send_file(self, file_name, chunk_size=34):
         packet_count = 0
