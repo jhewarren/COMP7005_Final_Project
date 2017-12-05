@@ -1,1 +1,1 @@
-{"server_ip": "192.168.0.1", "server_port": 7005, "emulator_ip": "192.168.0.5", "emulator_port": 7005}
+{"server_ip": "192.168.0.12", "server_port": 7005, "emulator_ip": "192.168.0.5", "emulator_port": 7006, "client_ip": "192.168.0.2", "client_port": 7007}

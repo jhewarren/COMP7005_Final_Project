@@ -78,7 +78,7 @@ def run_server():
         return None
     print("Machine 2 data_connection state:", data_connection.get_state())
 
-    data_connection.send_file(filename="./testfiles/512kb.dat", chunksize=40)
+    data_connection.send_file(filename="./testfiles/32b.dat", chunksize=40)
 
     # close socket
     server_socket.close()

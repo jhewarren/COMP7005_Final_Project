@@ -27,7 +27,7 @@ class connection(object):
         self.remote = remote
         self.parser = packet_parser()
         self.is_listener = False
-        self.sequence_number = MAX_VALUE_0xFFFF - 100  # randint(1, 65000)
+        self.sequence_number = randint(1, MAX_VALUE_0xFFFF - 1)
         self.ack_number = 0
         if self.remote is None:
             self.is_listener = True
