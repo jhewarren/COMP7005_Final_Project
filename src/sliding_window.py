@@ -123,7 +123,3 @@ if len(sys.argv) is 2:
         run_client()
     else:
         run_emulator()
-
-Thread(target=run_client).start()
-Thread(target=run_server).start()
-Thread(target=run_emulator).start()
