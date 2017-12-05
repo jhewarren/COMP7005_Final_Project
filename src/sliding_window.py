@@ -38,7 +38,7 @@ def run_client():
     # data_connection.recv_file(file_name="./recv/file.dat")
 
     # clear resources
-    #data_socket.close()
+    # data_socket.close()
     client_socket.close()
     # del data_connection
     del command_connection
@@ -79,7 +79,7 @@ def run_server():
 
     # close socket
     server_socket.close()
-    #data_socket.close()
+    # data_socket.close()
     del command_connection
     #del data_connection
 
@@ -98,12 +98,12 @@ def run_emulator():
     # connect to the server
     if not command_client_connection.connect_to_remote():
         print("Emulator failed at command_client_connection connect()")
-    print("Emulator state with server")
+    print("Emulator state with server", command_client_connection.get_state())
 
     # await connection to forward to server
     if not command_server_connection.accept_connection():
         print("Emulator failed during connection")
-    print("Emulator state with client:", command_connection.get_state())
+    print("Emulator state with client:", command_server_connection.get_state())
 
     server_socket.close()
     client_socket.close()
